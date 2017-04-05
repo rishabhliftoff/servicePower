@@ -1,0 +1,32 @@
+{
+  "name": "vis-timeline",
+  "version": "0.1.0",
+  "description": "vis timeline for POC",
+  "main": "server.js",
+  "keywords": [
+    "timeline",
+    "vis"
+  ],
+  "author": "Rishabh Gupta",
+  "license": "ISC",
+  "scripts": {
+    "test": "",
+    "start": "node server",
+    "heroku-postbuild": "webpack -p --config ./webpack.config.js --progress"
+  },
+  "dependencies": {
+    "express": "4.15.2",
+    "react": "^0.14.3",
+    "react-dom": "^0.14.3",
+    "vis": "4.19.1",
+
+    "babel-core": "6.24.0",
+    "babel-loader": "6.4.1",
+    "babel-preset-es2015": "6.24.0",
+    "babel-preset-react": "6.23.0",
+    "webpack": "2.3.3"
+  },
+  "devDependencies": {
+    
+  }
+}

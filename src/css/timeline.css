@@ -1,0 +1,38 @@
+.resource {
+
+}
+
+.resource__name {
+	text-transform: capitalize;
+    font-weight: 600;
+}
+
+.resource__skills {
+	font-style: italic;
+    font-size: small;
+    color: grey;
+}
+
+.task {
+
+}
+
+.task--completed {
+	background: #C5E1A5;
+	border-color: #9CCC65;
+}
+
+.task--init {
+	background: #FFAB91;
+	border-color: #FF7043;
+}
+
+.task--ongoing {
+	background: #E6EE9C;
+	border-color: #D4E157;
+}
+
+.task--picked {
+	background: #81D4FA;
+	border-color: #4FC3F7;
+}
