@@ -1,6 +1,20 @@
 import React from 'react';
 import vis from 'vis';
 
+const skillsToIcons = {
+    "washing-machine": "glyphicon-cog",
+    refridgerator: "glyphicon-ice-lolly",
+    "water-purifier": "glyphicon-filter",
+    "air-conditioner": "glyphicon-cloud",
+    babysitting: "glyphicon-baby-formula",
+    "house-cleaning": "glyphicon-home",
+    "wall-painting": "glyphicon-pushpin",
+    gardening: "glyphicon-tree-deciduous",
+    computer: "glyphicon-floppy-disk",
+    carpentry: "glyphicon-bed",
+    plumbing: "glyphicon-wrench"
+}
+
 export default class Timeline extends React.Component {
     constructor(props) {
         super(props);
@@ -17,10 +31,14 @@ export default class Timeline extends React.Component {
         let groups = [];
 
         for (var r in this.props.resources) {
+            const icons = this.props.resources[r].skills.map((skill) =>
+                `<i class="glyphicon ${skillsToIcons[skill]}"></i>`
+            );
             const el = `
                 <div class="resource">
                     <div class="resource__name">${this.props.resources[r].name}</div>
                     <div class="resource__skills">${this.props.resources[r].skills.join(' ')}</div>
+                    <div class="resource__icons">${icons}</div>
                 </div>
             `;
             groups.push({id: this.props.resources[r].id, content: el});

@@ -1,20 +1,6 @@
 import React from 'react';
 import Timeline from './Timeline';
 
-const skills = {
-    "washing-machine": "",
-    refridgerator: "",
-    "water-purifier": "",
-    "air-conditioner": "",
-    babysitting: "",
-    "house-cleaning": "",
-    "wall-painting": "",
-    gardening: "",
-    computer: "",
-    carpentry: "",
-    plumbing: ""
-}
-
 const resources = [{
     id: 1,
     name: "phil",
