@@ -1,5 +1,6 @@
 import React from 'react';
 import Timeline from './Timeline';
+import TaskDetails from './TaskDetails';
 
 const resources = [{
     id: 1,
@@ -68,7 +69,7 @@ let tasks = [{
     skills: ["refridgerator"],
     duration: 4,
     status: "ongoing",
-    start: new Date().setHours(new Date(new Date().setMinutes(0, 0, 0)).getHours() - 1),
+    start: new Date(new Date().setMinutes(0, 0, 0) - .5*60*60*1000),
     resource: 1
 }, {
     id: 735,
@@ -86,7 +87,7 @@ let tasks = [{
     skills: ["babysitting"],
     duration: 2,
     status: "picked",
-    start: new Date().setDate(new Date(new Date().setHours(20, 0, 0, 0)).getDate() + 1),
+    start: new Date(new Date().setHours(20, 0, 0, 0) + 24*60*60*1000),
     resource: 3
 }, {
     id: 760,
@@ -131,7 +132,7 @@ let tasks = [{
     skills: ["water-purifier"],
     duration: 0.7,
     status: "completed",
-    start: new Date().setHours(new Date(new Date().setMinutes(0, 0, 0)).getHours() - 2),
+    start: new Date().setHours(8, 0, 0, 0),
     resource: 2
 }, {
     id: 843,
@@ -140,7 +141,7 @@ let tasks = [{
     skills: ["washing-machine"],
     duration: 4.5,
     status: "picked",
-    start: new Date().setDate(new Date(new Date().setHours(10, 0, 0, 0)).getDate() + 1),
+    start: new Date(new Date().setHours(10, 0, 0, 0) + 24*60*60*1000),
     resource: 2
 }, {
     id: 794,
@@ -171,7 +172,6 @@ export default class App extends React.Component {
     }
 
     onSelect(id) {
-
         this.setState({
             selectedTask: id
         });
@@ -183,24 +183,13 @@ export default class App extends React.Component {
         if (this.state.selectedTask) {
             const task = tasks.find((t) => t.id === this.state.selectedTask);
             taskDetails = (
-                <table className="task-table table table-striped table-bordered">
-                    <caption>Task Details</caption>
-                    <tbody>
-                        <tr><td>ID</td><td>{task.id}</td></tr>
-                        <tr><td>Location</td><td>{task.location}</td></tr>
-                        <tr><td>Description</td><td>{task.description}</td></tr>
-                        <tr><td>Duration</td><td>{task.duration} hours</td></tr>
-                        <tr><td>Status</td><td>{task.status}</td></tr>
-                        <tr><td>Skills required</td><td>{task.skills}</td></tr>
-                        <tr><td>Start</td><td>{new Date(task.start).toString()}</td></tr> 
-                    </tbody>
-                </table>
+                <TaskDetails task={task} closeModal={this.onSelect} />
             );
         }
 
         return (
             <div>
-                <h1>Timeline App</h1>
+                <img src="/images/service-power-logo.png" />
                 <Timeline resources={resources} tasks={tasks} onSelect={this.onSelect} />
                 {taskDetails}
             </div>

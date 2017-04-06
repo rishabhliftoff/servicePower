@@ -15,6 +15,8 @@ const skillsToIcons = {
     plumbing: "glyphicon-wrench"
 }
 
+var timeline;
+
 export default class Timeline extends React.Component {
     constructor(props) {
         super(props);
@@ -38,10 +40,10 @@ export default class Timeline extends React.Component {
                 <div class="resource">
                     <div class="resource__name">${this.props.resources[r].name}</div>
                     <div class="resource__skills">${this.props.resources[r].skills.join(' ')}</div>
-                    <div class="resource__icons">${icons}</div>
+                    <div class="resource__icons">${icons.join(' ')}</div>
                 </div>
             `;
-            groups.push({id: this.props.resources[r].id, content: el});
+            groups.push({id: this.props.resources[r].id, content: el, className: "rowlabel"});
         }
 
         // first we will add shifts of each of the resource
@@ -84,7 +86,7 @@ export default class Timeline extends React.Component {
         };
 
         // Create a Timeline
-        var timeline = new vis.Timeline(this.refs.timeline, items, groups, options);
+        timeline = new vis.Timeline(this.refs.timeline, items, groups, options);
 
         timeline.on('select', (properties) => {
             this.props.onSelect(properties.items[0])
