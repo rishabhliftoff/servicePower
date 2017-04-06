@@ -1,5 +1,7 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import vis from 'vis';
+import moment from 'moment';
 
 const skillsToIcons = {
     "washing-machine": "glyphicon-cog",
@@ -15,7 +17,49 @@ const skillsToIcons = {
     plumbing: "glyphicon-wrench"
 }
 
+const backgroundApplied = [];
+
 var timeline;
+var items = new vis.DataSet();
+
+function applyBackground(resources, startDate, endDate) {
+    let dates = [];
+    let new_items = [];
+
+    if (endDate) {
+        startDate = moment(startDate);
+        endDate = moment(endDate);
+        while (startDate.isSameOrBefore(endDate, 'day')) {
+            dates.push(startDate.format('YYYY-MM-DD'));
+            startDate.add(1, 'days');
+        }
+    } else {
+        dates.push(moment(startDate).format('YYYY-MM-DD'));
+    }
+
+    for (var d in dates) {
+        if (backgroundApplied.indexOf(moment(dates[d]).format('YYYY-MM-DD')) > -1) {
+            continue;
+        }
+
+        for (var r in resources) {
+            new_items.push({
+                type: "background",
+                group: resources[r].id,
+                content: "",
+                start: moment(dates[d]).set({'hour': resources[r].shift.start, 'minute': 0, 'second': 0, 'millisecond': 0}),
+                end: moment(dates[d]).set({'hour': resources[r].shift.end, 'minute': 0, 'second': 0, 'millisecond': 0})
+            });
+        }
+
+        backgroundApplied.push(moment(dates[d]).format('YYYY-MM-DD'));
+    }
+
+    console.log(new_items);
+
+    items.add(new_items);
+    timeline.setItems(items);
+}
 
 export default class Timeline extends React.Component {
     constructor(props) {
@@ -28,10 +72,30 @@ export default class Timeline extends React.Component {
     }
 
     componentDidMount() {
-        let jeopardyProjects = [];
-        let normalProjects = [];
-        let groups = [];
+        // Create a DataSet (allows two way data-binding)
+        // var items = new vis.DataSet([]);
+        var groups = new vis.DataSet([]);
 
+        // Configuration for the Timeline
+        var options = {
+            showCurrentTime: true,
+            end: new Date(new Date().setHours(24, 0, 0, 0)),
+            start: new Date(new Date().setHours(0, 0, 0, 0)),
+            format: {
+                minorLabels: {
+                    hour: "h:mma"
+                }
+            }
+        };
+
+        // Create a Timeline
+        timeline = new vis.Timeline(this.refs.timeline, items, groups, options);
+
+        
+        
+        groups = [];
+
+        // cities
         for (var c in this.props.cityResources) {
             groups.push({
                 id: `city-${this.props.cityResources[c].id}`,
@@ -40,6 +104,7 @@ export default class Timeline extends React.Component {
             });
         }
 
+        // resources
         for (var r in this.props.resources) {
             const icons = this.props.resources[r].skills.map((skill) =>
                 `<i class="glyphicon ${skillsToIcons[skill]}"></i>`
@@ -51,19 +116,20 @@ export default class Timeline extends React.Component {
                     <div class="resource__icons">${icons.join(' ')}</div>
                 </div>
             `;
-            groups.push({id: this.props.resources[r].id, content: el});
+            groups.push({id: this.props.resources[r].id, content: el, className: "resource-container"});
         }
 
-        // first we will add shifts of each of the resource
-        for (var r in this.props.resources) {
-            normalProjects.push({
-                type: "background",
-                group: this.props.resources[r].id,
-                content: "",
-                start: new Date(new Date().setHours(this.props.resources[r].shift.start, 0, 0, 0)),
-                end: new Date(new Date().setHours(this.props.resources[r].shift.end, 0, 0, 0))
-            });
-        }
+        groups = new vis.DataSet(groups);
+        timeline.setGroups(groups);
+
+
+
+        applyBackground(this.props.resources, new Date());
+
+
+
+        let jeopardyProjects = [];
+        let normalProjects = [];
 
         for (var task in this.props.tasks) {
             if (this.props.tasks[task].status === 'init') {
@@ -82,22 +148,17 @@ export default class Timeline extends React.Component {
             }
         }
 
-        // Create a DataSet (allows two way data-binding)
-        var items = new vis.DataSet(normalProjects);
-        groups = new vis.DataSet(groups);
+        items.add(normalProjects);
+        timeline.setItems(items);
 
-        // Configuration for the Timeline
-        var options = {
-            showCurrentTime: true,
-            end: new Date(new Date().setHours(24, 0, 0, 0)),
-            start: new Date(new Date().setHours(0, 0, 0, 0))
-        };
-
-        // Create a Timeline
-        timeline = new vis.Timeline(this.refs.timeline, items, groups, options);
+        
 
         timeline.on('select', (properties) => {
             this.props.onSelect(properties.items[0])
+        });
+
+        timeline.on('rangechanged', (properties) => {
+            applyBackground(this.props.resources, properties.start, properties.end);
         });
     }
 

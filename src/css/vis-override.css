@@ -1,0 +1,29 @@
+.vis-item-content {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vis-labelset .resource-container .vis-inner {
+    display: block;
+}
+
+
+/* gray background in weekends, white text color */
+
+.vis-time-axis .vis-grid.vis-saturday,
+.vis-time-axis .vis-grid.vis-sunday {
+    background: gray;
+}
+
+.vis-time-axis .vis-text.vis-saturday,
+.vis-time-axis .vis-text.vis-sunday {
+    color: white;
+}
+
+.vis-item.vis-background.shift {
+	background: rgba(255, 252, 0, 0.14);
+}
+
+.vis-item.vis-background.shift--break {
+	background: rgba(167, 167, 167, 0.14);
+}
