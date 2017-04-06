@@ -1,7 +1,3 @@
-.rowlabel .vis-inner {
-	display: block;
-}
-
 .resource {
 
 }
@@ -23,7 +19,7 @@
 }
 
 .task {
-
+	overflow: hidden;
 }
 
 .task--completed {

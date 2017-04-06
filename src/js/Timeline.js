@@ -32,6 +32,14 @@ export default class Timeline extends React.Component {
         let normalProjects = [];
         let groups = [];
 
+        for (var c in this.props.cityResources) {
+            groups.push({
+                id: `city-${this.props.cityResources[c].id}`,
+                content: this.props.cityResources[c].name,
+                nestedGroups: this.props.cityResources[c].resources
+            });
+        }
+
         for (var r in this.props.resources) {
             const icons = this.props.resources[r].skills.map((skill) =>
                 `<i class="glyphicon ${skillsToIcons[skill]}"></i>`
@@ -43,7 +51,7 @@ export default class Timeline extends React.Component {
                     <div class="resource__icons">${icons.join(' ')}</div>
                 </div>
             `;
-            groups.push({id: this.props.resources[r].id, content: el, className: "rowlabel"});
+            groups.push({id: this.props.resources[r].id, content: el});
         }
 
         // first we will add shifts of each of the resource
@@ -69,7 +77,7 @@ export default class Timeline extends React.Component {
                     content: this.props.tasks[task].description,
                     start: new Date(this.props.tasks[task].start),
                     end: new Date(new Date(this.props.tasks[task].start).getTime() + this.props.tasks[task].duration * 60 * 60 * 1000),
-                    className: `task--${this.props.tasks[task].status}`
+                    className: `task task--${this.props.tasks[task].status}`
                 });
             }
         }
