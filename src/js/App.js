@@ -1,7 +1,11 @@
 import React from 'react';
 import Timeline from './Timeline';
 import TaskDetails from './TaskDetails';
-import { cityResources, resources, tasks } from './data';
+import { cityResources, resources, genTasks } from './data';
+
+console.log(genTasks);
+
+let tasks = genTasks();
 
 export default class App extends React.Component {
     constructor(props) {

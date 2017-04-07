@@ -5,10 +5,9 @@ import moment from 'moment';
 
 const skillsToIcons = {
     "washing-machine": "glyphicon-cog",
-    refridgerator: "glyphicon-ice-lolly",
+    refrigerator: "glyphicon-ice-lolly",
     "water-purifier": "glyphicon-filter",
     "air-conditioner": "glyphicon-cloud",
-    babysitting: "glyphicon-baby-formula",
     "house-cleaning": "glyphicon-home",
     "wall-painting": "glyphicon-pushpin",
     gardening: "glyphicon-tree-deciduous",
@@ -30,7 +29,9 @@ function applyBackground(resources, startDate, endDate) {
         startDate = moment(startDate);
         endDate = moment(endDate);
         while (startDate.isSameOrBefore(endDate, 'day')) {
-            dates.push(startDate.format('YYYY-MM-DD'));
+            if (startDate.day() !== 0 && startDate.day() !== 6) {
+                dates.push(startDate.format('YYYY-MM-DD'));
+            }
             startDate.add(1, 'days');
         }
     } else {
@@ -55,8 +56,6 @@ function applyBackground(resources, startDate, endDate) {
         backgroundApplied.push(moment(dates[d]).format('YYYY-MM-DD'));
     }
 
-    console.log(new_items);
-
     items.add(new_items);
     timeline.setItems(items);
 }
@@ -79,8 +78,8 @@ export default class Timeline extends React.Component {
         // Configuration for the Timeline
         var options = {
             showCurrentTime: true,
-            end: new Date(new Date().setHours(24, 0, 0, 0)),
-            start: new Date(new Date().setHours(0, 0, 0, 0)),
+            end: moment().set({'hour': 18, 'minute': 0, 'second': 0, 'millisecond': 0}),
+            start: moment().set({'hour': 6, 'minute': 0, 'second': 0, 'millisecond': 0}),
             format: {
                 minorLabels: {
                     hour: "h:mma"
