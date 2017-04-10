@@ -22,6 +22,23 @@
 	overflow: hidden;
 }
 
+.task-inner {
+	display: flex;
+	justify-content: space-between;
+}
+
+.task-travel {
+	height: 5px;
+	background: rgba(42,42,42,.8);
+	margin-top: 10px;
+}
+
+.task-desc {
+	overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 5px;
+}
+
 .task--completed {
 	background: #C5E1A5;
 	border-color: #9CCC65;

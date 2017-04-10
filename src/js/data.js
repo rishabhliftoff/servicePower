@@ -215,7 +215,7 @@ function genTasks() {
 
     for (let i = 0; i < 100; i++) {
         sn = Math.floor(Math.random() * skills.length);
-        d = Math.random() * 4;
+        d = 0.5 + Math.random() * 3.5;
 
         st = getStTime(res[skills[sn].r]);
         res[skills[sn].r].n.add(d, 'h');
@@ -238,7 +238,11 @@ function genTasks() {
             resource: skills[sn].r,
             duration: Math.round(d*100)/100,
             start: st,
-            status: stat
+            status: stat,
+            travelTime: {
+                out: Math.round(d*.5*Math.random()*100)/100,
+                in: Math.round(d*.5*Math.random()*100)/100
+            }
         });
     }
 

@@ -159,10 +159,20 @@ export default class Timeline extends React.Component {
                 jeopardyTasks.push(this.props.tasks[task]);
 
             } else {
+
+                const el = `
+                    <div class="task-inner">
+                        <div class="task-travel task-travel--out" style='width:${this.props.tasks[task].travelTime.out*100/this.props.tasks[task].duration}%'></div>
+                        <div class="task-desc">${this.props.tasks[task].description}</div>
+                        <div class="task-travel task-travel--in" style='width:${this.props.tasks[task].travelTime.in*100/this.props.tasks[task].duration}%'></div>
+                    </div>
+                `;
+
                 normalTasks.push({
                     id: this.props.tasks[task].id,
                     group: this.props.tasks[task].resource,
-                    content: this.props.tasks[task].description,
+                    // content: this.props.tasks[task].description,
+                    content: el,
                     start: new Date(this.props.tasks[task].start),
                     end: new Date(new Date(this.props.tasks[task].start).getTime() + this.props.tasks[task].duration * 60 * 60 * 1000),
                     className: `task task--${this.props.tasks[task].status}`
