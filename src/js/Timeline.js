@@ -19,14 +19,23 @@ const skillsToIcons = {
 const backgroundApplied = [];
 
 var timeline;
-var items = new vis.DataSet();
+var items = new vis.DataSet([]);
+var groups = new vis.DataSet([]);
 
 function applyBackground(resources, startDate, endDate) {
+
+    /*
+        apply logic for background ex holidays, lunch breaks, shifts etc..
+        backgrounds appear on top of each other based on position in groups array
+    */
+
     let dates = [];
     let new_items = [];
 
+    startDate = moment(startDate);
+
     if (endDate) {
-        startDate = moment(startDate);
+        
         endDate = moment(endDate);
         while (startDate.isSameOrBefore(endDate, 'day')) {
             if (startDate.day() !== 0 && startDate.day() !== 6) {
@@ -35,7 +44,9 @@ function applyBackground(resources, startDate, endDate) {
             startDate.add(1, 'days');
         }
     } else {
-        dates.push(moment(startDate).format('YYYY-MM-DD'));
+        if (startDate.day() !== 0 && startDate.day() !== 6) {
+            dates.push(moment(startDate).format('YYYY-MM-DD'));
+        }
     }
 
     for (var d in dates) {
@@ -60,22 +71,26 @@ function applyBackground(resources, startDate, endDate) {
     timeline.setItems(items);
 }
 
+
+
 export default class Timeline extends React.Component {
     constructor(props) {
         super(props);
         this.state = {};
+
+        this.toggleResourceDisplay = this.toggleResourceDisplay.bind(this);
     }
 
     shouldComponentUpdate() {
         return false;
     }
 
-    componentDidMount() {
-        // Create a DataSet (allows two way data-binding)
-        // var items = new vis.DataSet([]);
-        var groups = new vis.DataSet([]);
+    toggleResourceDisplay(e) {
+        groups.update({id: e.target.value, visible: e.target.checked});
+    }
 
-        // Configuration for the Timeline
+    componentDidMount() {
+
         var options = {
             showCurrentTime: true,
             end: moment().set({'hour': 18, 'minute': 0, 'second': 0, 'millisecond': 0}),
@@ -84,19 +99,20 @@ export default class Timeline extends React.Component {
                 minorLabels: {
                     hour: "h:mma"
                 }
-            }
+            },
+            max: moment().add(2, 'M'),
+            min: moment().subtract(2, 'M')
         };
 
-        // Create a Timeline
         timeline = new vis.Timeline(this.refs.timeline, items, groups, options);
 
         
         
-        groups = [];
+        var default_groups = [];
 
         // cities
         for (var c in this.props.cityResources) {
-            groups.push({
+            default_groups.push({
                 id: `city-${this.props.cityResources[c].id}`,
                 content: this.props.cityResources[c].name,
                 nestedGroups: this.props.cityResources[c].resources
@@ -115,11 +131,18 @@ export default class Timeline extends React.Component {
                     <div class="resource__icons">${icons.join(' ')}</div>
                 </div>
             `;
-            groups.push({id: this.props.resources[r].id, content: el, className: "resource-container"});
+            default_groups.push({id: this.props.resources[r].id, content: el, className: "resource-container"});
         }
 
-        groups = new vis.DataSet(groups);
+        groups.add(default_groups);
         timeline.setGroups(groups);
+
+        var controlEl = document.getElementById("controlResourceDisplay");
+        var controlElChildren = controlEl.children;
+
+        for (var i = 0 ; i<controlElChildren.length; i++) {
+            controlElChildren[i].getElementsByTagName('input')[0].checked = true;
+        }
 
 
 
@@ -127,16 +150,16 @@ export default class Timeline extends React.Component {
 
 
 
-        let jeopardyProjects = [];
-        let normalProjects = [];
+        let jeopardyTasks = [];
+        let normalTasks = [];
 
         for (var task in this.props.tasks) {
             if (this.props.tasks[task].status === 'init') {
 
-                jeopardyProjects.push(this.props.tasks[task]);
+                jeopardyTasks.push(this.props.tasks[task]);
 
             } else {
-                normalProjects.push({
+                normalTasks.push({
                     id: this.props.tasks[task].id,
                     group: this.props.tasks[task].resource,
                     content: this.props.tasks[task].description,
@@ -147,7 +170,7 @@ export default class Timeline extends React.Component {
             }
         }
 
-        items.add(normalProjects);
+        items.add(normalTasks);
         timeline.setItems(items);
 
         
@@ -162,10 +185,32 @@ export default class Timeline extends React.Component {
     }
 
     render() {
+
+        var controlResourceDisplay = this.props.resources.map((r) => {
+            return (
+                <li className="controlResourceDisplay__list__item">
+                    <input
+                        className='controlResourceDisplay__list__item__input'
+                        name="resources"
+                        value={r.id}
+                        type="checkbox"
+                        onChange={this.toggleResourceDisplay}
+                    />
+                    <span className='controlResourceDisplay__list__item__name'>{r.name}</span>
+                </li>
+            );
+        })
+
         return (
             <div>
                 <div ref='timeline'>
                 
+                </div>
+                <div>
+                    <h3>Display Control</h3>
+                    <ul id="controlResourceDisplay" className="controlResourceDisplay__list list-unstyled">
+                        {controlResourceDisplay}
+                    </ul>
                 </div>
             </div>
         );
