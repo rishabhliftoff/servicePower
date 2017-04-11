@@ -33,20 +33,13 @@ function applyBackground(resources, startDate, endDate) {
     let new_items = [];
 
     startDate = moment(startDate);
+    endDate = moment(endDate);
 
-    if (endDate) {
-        
-        endDate = moment(endDate);
-        while (startDate.isSameOrBefore(endDate, 'day')) {
-            if (startDate.day() !== 0 && startDate.day() !== 6) {
-                dates.push(startDate.format('YYYY-MM-DD'));
-            }
-            startDate.add(1, 'days');
-        }
-    } else {
+    while (startDate.isSameOrBefore(endDate, 'day')) {
         if (startDate.day() !== 0 && startDate.day() !== 6) {
-            dates.push(moment(startDate).format('YYYY-MM-DD'));
+            dates.push(startDate.format('YYYY-MM-DD'));
         }
+        startDate.add(1, 'days');
     }
 
     for (var d in dates) {
@@ -68,6 +61,74 @@ function applyBackground(resources, startDate, endDate) {
     }
 
     items.add(new_items);
+    timeline.setItems(items);
+}
+
+function applyGroups(resources, cityResources) {
+    var newSuperGroups = [];
+
+    for (var c in cityResources) {
+        newSuperGroups.push({
+            id: `city-${cityResources[c].id}`,
+            content: cityResources[c].name,
+            nestedGroups: cityResources[c].resources
+        });
+    }
+
+    groups.add(newSuperGroups);
+
+    var newGroups = [];
+    for (var r in resources) {
+        const icons = resources[r].skills.map((skill) =>
+            `<i class="glyphicon ${skillsToIcons[skill]}"></i>`
+        );
+        const el = `
+            <div class="resource">
+                <div class="resource__name">${resources[r].name}</div>
+                <div class="resource__skills">${resources[r].skills.join(' ')}</div>
+                <div class="resource__icons">${icons.join(' ')}</div>
+            </div>
+        `;
+        newGroups.push({id: resources[r].id, content: el, className: "resource-container"});
+    }
+
+    groups.add(newGroups);
+    timeline.setGroups(groups);
+}
+
+
+function applyTasks(tasks) {
+    let jeopardyTasks = [];
+    let normalTasks = [];
+
+    for (var task in tasks) {
+        if (tasks[task].status === 'init') {
+
+            jeopardyTasks.push(tasks[task]);
+
+        } else {
+
+            const el = `
+                <div class="task-inner">
+                    <div class="task-travel task-travel--out" style='width:${tasks[task].travelTime.out*100/tasks[task].duration}%'></div>
+                    <div class="task-desc">${tasks[task].description}</div>
+                    <div class="task-travel task-travel--in" style='width:${tasks[task].travelTime.in*100/tasks[task].duration}%'></div>
+                </div>
+            `;
+
+            normalTasks.push({
+                id: tasks[task].id,
+                group: tasks[task].resource,
+                // content: this.props.tasks[task].description,
+                content: el,
+                start: new Date(tasks[task].start),
+                end: new Date(new Date(tasks[task].start).getTime() + tasks[task].duration * 60 * 60 * 1000),
+                className: `task task--${tasks[task].status}`
+            });
+        }
+    }
+
+    items.add(normalTasks);
     timeline.setItems(items);
 }
 
@@ -101,41 +162,18 @@ export default class Timeline extends React.Component {
                 }
             },
             max: moment().add(2, 'M'),
-            min: moment().subtract(2, 'M')
+            min: moment().subtract(2, 'M'),
+            zoomMax: (30 * 24 * 60 * 60 * 1000),
+            zoomMin: (12 * 60 * 60 * 1000)
         };
 
         timeline = new vis.Timeline(this.refs.timeline, items, groups, options);
 
         
         
-        var default_groups = [];
-
-        // cities
-        for (var c in this.props.cityResources) {
-            default_groups.push({
-                id: `city-${this.props.cityResources[c].id}`,
-                content: this.props.cityResources[c].name,
-                nestedGroups: this.props.cityResources[c].resources
-            });
-        }
-
         // resources
-        for (var r in this.props.resources) {
-            const icons = this.props.resources[r].skills.map((skill) =>
-                `<i class="glyphicon ${skillsToIcons[skill]}"></i>`
-            );
-            const el = `
-                <div class="resource">
-                    <div class="resource__name">${this.props.resources[r].name}</div>
-                    <div class="resource__skills">${this.props.resources[r].skills.join(' ')}</div>
-                    <div class="resource__icons">${icons.join(' ')}</div>
-                </div>
-            `;
-            default_groups.push({id: this.props.resources[r].id, content: el, className: "resource-container"});
-        }
-
-        groups.add(default_groups);
-        timeline.setGroups(groups);
+        applyGroups(this.props.resources, this.props.cityResources);
+        
 
         var controlEl = document.getElementById("controlResourceDisplay");
         var controlElChildren = controlEl.children;
@@ -145,44 +183,10 @@ export default class Timeline extends React.Component {
         }
 
 
-
-        applyBackground(this.props.resources, new Date());
-
+        applyBackground(this.props.resources, new Date(), new Date());
 
 
-        let jeopardyTasks = [];
-        let normalTasks = [];
-
-        for (var task in this.props.tasks) {
-            if (this.props.tasks[task].status === 'init') {
-
-                jeopardyTasks.push(this.props.tasks[task]);
-
-            } else {
-
-                const el = `
-                    <div class="task-inner">
-                        <div class="task-travel task-travel--out" style='width:${this.props.tasks[task].travelTime.out*100/this.props.tasks[task].duration}%'></div>
-                        <div class="task-desc">${this.props.tasks[task].description}</div>
-                        <div class="task-travel task-travel--in" style='width:${this.props.tasks[task].travelTime.in*100/this.props.tasks[task].duration}%'></div>
-                    </div>
-                `;
-
-                normalTasks.push({
-                    id: this.props.tasks[task].id,
-                    group: this.props.tasks[task].resource,
-                    // content: this.props.tasks[task].description,
-                    content: el,
-                    start: new Date(this.props.tasks[task].start),
-                    end: new Date(new Date(this.props.tasks[task].start).getTime() + this.props.tasks[task].duration * 60 * 60 * 1000),
-                    className: `task task--${this.props.tasks[task].status}`
-                });
-            }
-        }
-
-        items.add(normalTasks);
-        timeline.setItems(items);
-
+        applyTasks(this.props.tasks);
         
 
         timeline.on('select', (properties) => {
