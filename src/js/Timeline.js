@@ -160,7 +160,6 @@ export default class Timeline extends React.Component {
             remove: true,       // delete an item by tapping the delete button top right
             overrideItems: false  // allow these options to override item.editable
           },
-            clickToUse: true,
             itemsAlwaysDraggable: true,
             showCurrentTime: true,
             end: moment().set({'hour': 18, 'minute': 0, 'second': 0, 'millisecond': 0}),
