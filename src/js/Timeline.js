@@ -153,6 +153,15 @@ export default class Timeline extends React.Component {
     componentDidMount() {
 
         var options = {
+          editable: {
+            add: false,         // add new items by double tapping
+            updateTime: true,  // drag items horizontally
+            updateGroup: true, // drag items from one group to another
+            remove: true,       // delete an item by tapping the delete button top right
+            overrideItems: false  // allow these options to override item.editable
+          },
+            clickToUse: true,
+            itemsAlwaysDraggable: true,
             showCurrentTime: true,
             end: moment().set({'hour': 18, 'minute': 0, 'second': 0, 'millisecond': 0}),
             start: moment().set({'hour': 6, 'minute': 0, 'second': 0, 'millisecond': 0}),
@@ -169,11 +178,11 @@ export default class Timeline extends React.Component {
 
         timeline = new vis.Timeline(this.refs.timeline, items, groups, options);
 
-        
-        
+
+
         // resources
         applyGroups(this.props.resources, this.props.cityResources);
-        
+
 
         var controlEl = document.getElementById("controlResourceDisplay");
         var controlElChildren = controlEl.children;
@@ -187,10 +196,12 @@ export default class Timeline extends React.Component {
 
 
         applyTasks(this.props.tasks);
-        
 
-        timeline.on('select', (properties) => {
-            this.props.onSelect(properties.items[0])
+
+        timeline.on('click', (properties) => {
+            if(properties.item && properties.what === 'item') {
+                this.props.onSelect(properties.item);
+            }
         });
 
         timeline.on('rangechanged', (properties) => {
@@ -218,7 +229,7 @@ export default class Timeline extends React.Component {
         return (
             <div>
                 <div ref='timeline'>
-                
+
                 </div>
                 <div>
                     <h3>Display Control</h3>
